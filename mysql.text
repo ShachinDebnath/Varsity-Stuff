@@ -1,0 +1,73 @@
+Step 1:
+
+CREATE DATABASE BankDB;
+USE BankDB;
+
+CREATE TABLE Branch (
+    BranchName VARCHAR(50) PRIMARY KEY,
+    BranchCity VARCHAR(50),
+    Assets DECIMAL(15,2)
+);
+
+CREATE TABLE Customer (
+    CustomerID INT PRIMARY KEY,
+    CustomerName VARCHAR(100),
+    CustomerStreet VARCHAR(100),
+    CustomerCity VARCHAR(50)
+);
+
+CREATE TABLE Account (
+    AccountNumber INT PRIMARY KEY,
+    BranchName VARCHAR(50),
+    Balance DECIMAL(15,2),
+    FOREIGN KEY (BranchName) REFERENCES Branch(BranchName)
+);
+
+CREATE TABLE Loan (
+    LoanNumber INT PRIMARY KEY,
+    BranchName VARCHAR(50),
+    Amount DECIMAL(15,2),
+    FOREIGN KEY (BranchName) REFERENCES Branch(BranchName)
+);
+
+CREATE TABLE Depositor (
+    CustomerID INT,
+    AccountNumber INT,
+    PRIMARY KEY (CustomerID, AccountNumber),
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (AccountNumber) REFERENCES Account(AccountNumber)
+);
+
+CREATE TABLE Borrower (
+    CustomerID INT,
+    LoanNumber INT,
+    PRIMARY KEY (CustomerID, LoanNumber),
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (LoanNumber) REFERENCES Loan(LoanNumber)
+);
+
+Step 2: Inserting Data into Tables
+
+-- Inserting Branches
+INSERT INTO Branch VALUES ('Uttara', 'Dhaka', 5000000);
+INSERT INTO Branch VALUES ('Dhanmondi', 'Dhaka', 7000000);
+
+-- Inserting Customers
+INSERT INTO Customer VALUES (101, 'John Doe', 'Street 1', 'Dhaka');
+INSERT INTO Customer VALUES (102, 'Jane Smith', 'Street 2', 'Chittagong');
+
+-- Inserting Accounts
+INSERT INTO Account VALUES (2001, 'Uttara', 15000);
+INSERT INTO Account VALUES (2002, 'Dhanmondi', 25000);
+
+-- Inserting Loans
+INSERT INTO Loan VALUES (3001, 'Uttara', 50000);
+INSERT INTO Loan VALUES (3002, 'Dhanmondi', 20000);
+
+-- Linking Depositors
+INSERT INTO Depositor VALUES (101, 2001);
+INSERT INTO Depositor VALUES (102, 2002);
+
+-- Linking Borrowers
+INSERT INTO Borrower VALUES (101, 3001);
+INSERT INTO Borrower VALUES (102, 3002);
