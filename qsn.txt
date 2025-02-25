@@ -1,0 +1,229 @@
+2. Find all customers who have an account but no loan in the bank.
+
+SELECT DISTINCT C.CustomerID, C.CustomerName
+FROM Customer C
+JOIN Depositor D ON C.CustomerID = D.CustomerID
+LEFT JOIN Borrower B ON C.CustomerID = B.CustomerID
+WHERE B.LoanNumber IS NULL;
+
+✅ Explanation:
+Joins Customer with Depositor to get all customers with accounts.
+Uses LEFT JOIN with Borrower to include all account holders but exclude loan holders (WHERE B.LoanNumber IS NULL).
+
+3. Delete all loans between 10,000 and 25,000
+
+DELETE FROM Loan
+WHERE Amount BETWEEN 10000 AND 25000;
+
+✅ Explanation:
+Deletes loans with amounts between 10,000 and 25,000 (inclusive).
+
+4. Find the names of all customers who have a loan at the Uttara branch.
+
+SELECT DISTINCT C.CustomerName
+FROM Customer C
+JOIN Borrower B ON C.CustomerID = B.CustomerID
+JOIN Loan L ON B.LoanNumber = L.LoanNumber
+WHERE L.BranchName = 'Uttara';
+
+✅ Explanation:
+Joins Customer, Borrower, and Loan to get customers with loans.
+Filters by L.BranchName = 'Uttara'.
+
+5. Find all customers who have both a loan and an account.
+
+SELECT DISTINCT C.CustomerID, C.CustomerName
+FROM Customer C
+JOIN Depositor D ON C.CustomerID = D.CustomerID
+JOIN Borrower B ON C.CustomerID = B.CustomerID;
+
+✅ Explanation:
+Joins Customer with Depositor (for account holders) and Borrower (for loan holders).
+Only selects customers appearing in both tables.
+
+6. Delete all loans with an amount in the range 0 to 500.
+
+DELETE FROM Loan
+WHERE Amount BETWEEN 0 AND 500;
+
+✅ Explanation:
+Deletes loans where Amount is between 0 and 500.
+
+6️⃣ Find the average account balance at each branch.
+✅ Query
+
+SELECT BranchName, AVG(Balance) AS AvgBalance
+FROM Account
+GROUP BY BranchName;
+
+🔍 Explanation
+AVG(Balance): Finds the average balance for each branch.
+GROUP BY BranchName: Groups results by branch, so we get one average per branch.
+
+7️⃣ Find the name of all branches in the loan relation.
+✅ Query
+
+SELECT DISTINCT BranchName
+FROM Loan;
+
+🔍 Explanation
+SELECT DISTINCT BranchName: Removes duplicates, so each branch appears only once.
+
+8️⃣ Deduct 3% service charge from account balance for customers who have both loan and account, otherwise deduct 5%.
+✅ Query
+
+UPDATE Account
+SET Balance = 
+    CASE 
+        WHEN AccountNumber IN (
+            SELECT D.AccountNumber
+            FROM Depositor D
+            JOIN Borrower B ON D.CustomerID = B.CustomerID
+        ) THEN Balance * 0.97  -- Deduct 3%
+        ELSE Balance * 0.95  -- Deduct 5%
+    END;
+
+🔍 Explanation
+CASE checks if the account belongs to a customer who has a loan:
+If yes, deduct 3% (Balance * 0.97).
+If no, deduct 5% (Balance * 0.95).
+Subquery (SELECT D.AccountNumber FROM Depositor D JOIN Borrower B ON D.CustomerID = B.CustomerID)
+Finds customers who have both loans and accounts.
+
+9️⃣ Increase all balances by 5 percent.
+✅ Query
+
+UPDATE Account
+SET Balance = Balance * 1.05;
+
+🔍 Explanation
+Balance * 1.05 → Increases every balance by 5%.
+
+🔟 Find the number of depositors for each branch.
+✅ Query
+
+SELECT A.BranchName, COUNT(D.CustomerID) AS NumDepositors
+FROM Account A
+JOIN Depositor D ON A.AccountNumber = D.AccountNumber
+GROUP BY A.BranchName;
+
+🔍 Explanation
+COUNT(D.CustomerID) → Counts the number of depositors.
+JOIN Depositor → Connects customers who have an account.
+GROUP BY A.BranchName → Groups by branch to get depositors per branch.
+
+1️⃣1️⃣ Find the largest account balance in the bank.
+✅ Query
+
+SELECT MAX(Balance) AS LargestBalance
+FROM Account;
+
+🔍 Explanation
+MAX(Balance): Finds the highest balance in the entire bank.
+
+1️⃣2️⃣ Delete all Sajid’s account records.
+✅ Query
+
+DELETE FROM Depositor
+WHERE CustomerID = (SELECT CustomerID FROM Customer WHERE CustomerName = 'Sajid');
+
+DELETE FROM Account
+WHERE AccountNumber NOT IN (SELECT AccountNumber FROM Depositor);
+
+🔍 Explanation
+First, delete Sajid’s records from Depositor (to avoid foreign key errors).
+Then, delete his accounts from Account table.
+
+1️⃣3️⃣ Find the second highest account balance in the bank.
+✅ Query
+
+SELECT MAX(Balance) AS SecondHighestBalance
+FROM Account
+WHERE Balance < (SELECT MAX(Balance) FROM Account);
+
+🔍 Explanation
+MAX(Balance): Finds the highest balance, but excludes the highest one to get the second highest.
+
+1️⃣4️⃣ Find all customers who live in the same city as the branch where they have an account but no loan.
+✅ Query
+
+SELECT DISTINCT C.CustomerID, C.CustomerName
+FROM Customer C
+JOIN Depositor D ON C.CustomerID = D.CustomerID
+JOIN Account A ON D.AccountNumber = A.AccountNumber
+JOIN Branch B ON A.BranchName = B.BranchName
+LEFT JOIN Borrower Br ON C.CustomerID = Br.CustomerID
+WHERE C.CustomerCity = B.BranchCity AND Br.LoanNumber IS NULL;
+
+🔍 Explanation
+Joins Customer, Depositor, Account, Branch tables.
+C.CustomerCity = B.BranchCity ensures they live in the same city.
+Br.LoanNumber IS NULL ensures they don’t have a loan.
+
+1️⃣5️⃣ Find branches that have no accounts.
+✅ Query
+
+SELECT BranchName
+FROM Branch
+WHERE BranchName NOT IN (SELECT DISTINCT BranchName FROM Account);
+
+🔍 Explanation
+Finds branches not present in the Account table.
+
+1️⃣6️⃣ Find branches where the total loan amount is greater than 50,000.
+✅ Query
+
+SELECT BranchName
+FROM Loan
+GROUP BY BranchName
+HAVING SUM(Amount) > 50000;
+
+🔍 Explanation
+SUM(Amount) > 50000: Filters branches where the total loan amount is greater than 50,000.
+
+1️⃣7️⃣ Retrieve distinct customers who have either an account or a loan.
+✅ Query
+
+SELECT DISTINCT C.CustomerID, C.CustomerName
+FROM Customer C
+LEFT JOIN Depositor D ON C.CustomerID = D.CustomerID
+LEFT JOIN Borrower B ON C.CustomerID = B.CustomerID
+WHERE D.CustomerID IS NOT NULL OR B.CustomerID IS NOT NULL;
+
+🔍 Explanation
+Includes customers who have either:
+An account (found in Depositor table).
+A loan (found in Borrower table).
+
+1️⃣8️⃣ Retrieve the branch with the maximum number of accounts.
+✅ Query
+
+SELECT BranchName
+FROM Account
+GROUP BY BranchName
+ORDER BY COUNT(AccountNumber) DESC
+LIMIT 1;
+
+🔍 Explanation
+Counts accounts per branch.
+Orders in descending order (DESC).
+Gets the top branch with LIMIT 1.
+
+1️⃣9️⃣ Find the maximum loan amount issued in each branch.
+✅ Query
+
+SELECT BranchName, MAX(Amount) AS MaxLoan
+FROM Loan
+GROUP BY BranchName;
+
+🔍 Explanation
+MAX(Amount) finds the largest loan per branch.
+
+2️⃣0️⃣ Find customers whose names start with 'A'.
+✅ Query
+
+SELECT * FROM Customer
+WHERE CustomerName LIKE 'A%';
+
+🔍 Explanation
+LIKE 'A%': Finds customers whose names start with ‘A’.
