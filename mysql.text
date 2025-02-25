@@ -1,5 +1,0 @@
-SELECT DISTINCT C.CustomerID, C.CustomerName
-FROM Customer C
-JOIN Depositor D ON C.CustomerID = D.CustomerID
-LEFT JOIN Borrower B ON C.CustomerID = B.CustomerID
-WHERE B.LoanNumber IS NULL;
