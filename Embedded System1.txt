@@ -1,0 +1,318 @@
+
+Exprement No. : 01
+Problem Name: Design and develop a reprogrammable embedded
+Computer using 8051 Microcontroller.
+
+#include<reg52.h>
+sbit LED = P1^4;
+void Delay(void);
+void main(void)
+{
+while(1)
+{
+LED = 1;
+Delay();
+LED = 0;
+Delay();
+}
+}
+void Delay(void)
+{
+unsigned int i;
+unsigned int j;
+for(i = 0; i < 8; i++)
+{
+for(j = 0; j < 12000; j++)
+{
+}
+}
+}
+
+Exprement No. : 02(a)
+Problem Name: Configure timer control registers of 8051 and develop a
+program to generate delay.
+
+#include<reg51.h>
+void Delay(unsigned char count);
+//timer delay function
+void main(void)
+{
+TMOD = 0x01; while(1)
+{
+//Timer 0, mode 1 (16-bit)
+P3 = 0x0F; Delay(10); P3 = 0xF0; Delay(10);
+//low nibble ON
+//10 x 50 ms = 0.5 s
+//high nibble ON
+}
+}
+void Delay(unsigned char count)
+{
+unsigned char n;
+for(n = 0; n < count; n++)
+{
+TH0 = 0x3C; //50 ms at 12 MHz
+TL0 = 0xB0;
+TR0 = 1; //start Timer 0
+while(TF0 == 0); //wait overflow
+TR0 = 0; //stop Timer 0
+TF0 = 0; //clear flag
+}
+}
+
+Exprement No.: 02(b)
+Problem Name: Use of general purpose I/O port of two controllers for
+data transfer
+
+
+Code 1
+//U1 : transmitter, data goes out on Port 3
+#include<reg51.h>
+void Delay(unsigned int time);
+//delay function with time value
+void main(void)
+{
+unsigned char k;
+while(1)
+{
+for(k = 0; k < 8; k++)
+{
+P3 = (unsigned char)(0x01 << k);
+Delay(500);
+}
+}
+}
+void Delay(unsigned int time)
+{
+unsigned int i, j;
+for(i = 0; i < time; i++)
+{
+for(j = 0; j < 120; j++)
+{
+}
+}
+}
+
+Code: (2)
+//U2 : receiver, data comes in on Port 1
+#include<reg51.h>
+void Delay(unsigned int time);
+//delay function with time value
+void main(void)
+{
+P1 = 0xFF; while(1)
+{
+//make Port 1 an input port
+P2 = P1; Delay(100);
+//copy received data to LEDs
+}
+}
+void Delay(unsigned int time)
+{
+unsigned int i, j;
+for(i = 0; i < time; i++)
+{
+for(j = 0; j < 120; j++)
+{
+}
+}
+}
+
+Exprement No. : 03(a)
+Problem Name: Simulate Binary Counter (8bits) on LEDs
+
+#include<reg51.h>
+void delay(unsigned int time);
+void main()
+{
+P2 = 0x00; while(1)
+{
+//all bits of P2 set LOW
+P2++; //increment of P2
+delay(300);
+}
+}
+void delay(unsigned int time)
+{
+unsigned int i, j;
+for(i = 0; i < time; i++)
+{
+for(j = 0; j < 120; j++)
+{
+}
+}
+}
+
+Exprement No. : 03(b)
+Problem Name: To interface 8 LEDs at I/O ports and create different
+patterns.
+
+#include<reg51.h>
+unsigned char code pattern[8] =
+{0x81, 0xC3, 0xE7, 0xFF,
+0xE7, 0xC3, 0x81, 0x00};
+void delay(unsigned int time)
+{
+unsigned int i, j;
+for(i = 0; i < time; i++)
+{
+for(j = 0; j < 120; j++)
+{
+}
+}
+}
+void main()
+{
+unsigned char k;
+while(1)
+{
+for(k = 0; k < 8; k++)
+{
+P1 = pattern[k];
+delay(400);
+}
+{
+for(k = 0; k < 8; k++)
+P1 = 0x01 << k; //chaser
+delay(200);
+}
+}
+}
+
+Exprement No.: 04(a)
+Problem Name: Serial I/O Configure 8051 Serial port for Asynchronous
+Serial Communication.
+
+#include<reg51.h>
+void sendChar(char x);
+void sendString(char *str);
+void main(void)
+{
+TMOD = 0x20; TH1 = 0xFD; SCON = 0x50; TR1 = 1; //Timer 1, auto reload
+//9600 baud rate
+//Mode 1, reception enable
+//Start timer 1
+sendString("shachin");
+sendChar('\r'); //carriage return
+sendChar('\n'); //new line
+while(1);
+}
+void sendChar(char x)
+{
+SBUF = x;
+while(TI == 0);
+TI = 0;
+}
+{
+void sendString(char *str)
+while(*str !=
+'\0')
+{
+sendChar(*str);
+str++;
+}
+}
+
+Exprement No.: 04(b)
+Problem Name: To demonstrate seven segments LED display and
+generate counting from 0 to 99.
+
+#include<reg51.h>
+//hex values of digits 0-9 for 7-seg LED
+//(common cathode)
+unsigned char code digit[10] =
+{0x3F, 0x06, 0x5B, 0x4F, 0x66,
+0x6D, 0x7D, 0x07, 0x7F, 0x6F};
+void delay(unsigned int ms)
+{
+unsigned int i, j;
+for(i = 0; i < ms; i++)
+{
+for(j = 0; j < 120; j++)
+{
+}
+}
+}
+void main(void)
+{
+unsigned char count;
+P1 = 0x00;
+P2 = 0x00;
+while(1)
+{
+for(count = 0; count <= 99; count++)
+{
+P2 = digit[count / 10]; //tens
+P1 = digit[count % 10]; //ones
+delay(500);
+}
+}
+}
+
+Exprement No. : 05
+Problem Name: Develop a program to interface stepper motors with
+8051.
+
+#include<reg51.h>
+//full step sequence of the motor
+unsigned char code step[4] =
+{0x03, 0x06, 0x0C, 0x09};
+void delay(unsigned int ms)
+{
+unsigned int i, j;
+for(i = 0; i < ms; i++)
+{
+for(j = 0; j < 120; j++)
+{
+}
+}
+}
+void main(void)
+{
+unsigned int n;
+while(1)
+{
+for(n = 0; n < 200; n++)
+{
+P2 = step[n % 4]; delay(20);
+//CW
+}
+delay(1000);
+for(n = 0; n < 200; n++)
+{
+P2 = step[3 - (n % 4)]; //ACW
+delay(20);
+}
+delay(1000);
+}
+}
+
+Exprement No. : 06
+Problem Name: Generate traﬃc signals.
+
+Source Code:
+#include<reg51.h>
+void delay(unsigned int ms)
+{
+unsigned int i, j;
+for(i = 0; i < ms; i++)
+{
+for(j = 0; j < 120; j++)
+{
+}
+}
+}
+void main(void)
+{
+while(1)
+{
+P1 = 0x0C; delay(5000);
+P1 = 0x0A; delay(2000);
+P1 = 0x21; delay(5000);
+P1 = 0x11; delay(2000);
+//NS green, EW red
+//NS yellow, EW red
+//NS red, EW green
+//NS red, EW yellow
+}
+}
